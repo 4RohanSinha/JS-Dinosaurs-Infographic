@@ -225,7 +225,8 @@ let dino_objects = [];
  * @description IIFE getting json data from github and placing it into the dino_objects variable
  * */
 (function() {
-	let jsonUrl = 'https://raw.githubusercontent.com/udacity/Javascript/master/dino.json';
+//	let jsonUrl = 'https://raw.githubusercontent.com/udacity/Javascript/master/dino.json';
+	let jsonUrl = 'https://4rohansinha.github.io/JS-Dinosaurs-Infographic/dino.json';
 	//fetch data from github repo
 	fetch(jsonUrl)
 		.then(function(response) { return response.json(); })
