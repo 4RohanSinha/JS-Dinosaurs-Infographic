@@ -22,6 +22,8 @@
     <!-- Form to get user input -->
     <form id="dino-compare">
         <div class="form-container">
+		<!-- Note: the span element was added below to give an error to the user if an invalid value is entered and submitted -->
+	    <span id='form-error-msg'></span>
             <p>Name:</p>
             <input id="name" class="form-field__full" type="name" name="name">
             <p>Height</p>
