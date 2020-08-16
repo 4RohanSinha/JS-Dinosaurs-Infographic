@@ -1,6 +1,11 @@
 //helper function
 //this function returns a readable decimal given the numerator and denominator
 //it finds the least number of decimal places that prevents a return value of 0 (a really small decimal value)
+/*
+ * @description returns readable, rounded form of a decimal while ensuring that it is not zero
+ * @param {int} numerator - the numerator of the fraction to convert to decimal
+ * @param {int} denominator - the denominator of the fraction to convert to decimal
+ * */
 function getReadableDecimal(numerator, denominator) {
 	let round_factor = 10; //how many decimal places should be shown
 	const max_iters = 7; //avoid making the decimal too long
@@ -11,6 +16,7 @@ function getReadableDecimal(numerator, denominator) {
 	while (quotient == 0 && i < max_iters) {
 		round_factor *= 10; //multiply round factor by 10 - increase # decimal places
 		quotient = Math.round((numerator/denominator)*round_factor)/round_factor; //recalculate quotient
+		i++;
 	}
 
 	return quotient; //when the decimal is readable, return it
@@ -18,6 +24,10 @@ function getReadableDecimal(numerator, denominator) {
 
 //helper function
 //reports any invalid input to user
+/*
+ * @description reports any invalid values in the form
+ * @param {string} message to give user
+ */
 function showInvalidFormError(msg) {
 	//the form-error-msg span tag was added to prevent invalid inputs from being submitted
 	let errorText = document.getElementById('form-error-msg');
@@ -25,9 +35,23 @@ function showInvalidFormError(msg) {
 	errorText.style.color = 'red';
 }
 
+/*
+ * @description Represents a dinosaur from the json and also used for the human input
+ * @constructor
+ * @param {string} species - the species (for human object, this is the name)
+ * @param {int} weight - the weight of the species
+ * @param {int} height - the height of the species
+ * @param {string} diet - the species' diet
+ * @param {string} where - where the species lived
+ * @param {string} when - when the species lived
+ * @param {string} fact - another random fact about species
+ * @param {string} img (default: '') - the image source for the species (NOTE: if this is left blank, it will default to images/(lowercased name of species).png
+ * @param {bool} isHuman - is the species a human - this is needed because the human object's species attribute is the name. This variable is needed by the infographic to determine whether the object is a human and whether to include comparisons and fun facts about it. NOTE: it defaults to false.
+ */
 // Create Dino Constructor
 //
-function Dino(species, weight, height, diet, where, when, fact, img="", isHuman=false) {
+function Dino(species, weight, height, diet, where, when, fact, img='', isHuman=false) {
+	//set member variables to parameters
 	this.species = species;
 	this.weight = weight;
 	this.height = height;
@@ -35,8 +59,8 @@ function Dino(species, weight, height, diet, where, when, fact, img="", isHuman=
 	//allow for objects not to pass in image source - in that case, the image source will default to the image source in the images folder (lowercase the species name)
 	//this is needed because for the human, the species will be their name so that their name (not homo sapiens) will show up in the infographic, but a human.png can be specified
 	this.img = img;
-	if (this.img == "") {
-		this.img = "images/" + this.species.toLowerCase() + ".png";
+	if (this.img == '') {
+		this.img = 'images/' + this.species.toLowerCase() + '.png';
 	}
 	this.where = where;
 	this.when = when;
@@ -49,55 +73,90 @@ function Dino(species, weight, height, diet, where, when, fact, img="", isHuman=
     // Create Dino Compare Method 1
     // NOTE: Weight in JSON file is in lbs, height in inches. 
 // compare weight - difference rounded to one decimal place
+/*
+ * @description method of dino to return string comparing weight of `this` object to another object
+ * @param {Dino} object to compare this's weight to
+ */
 Dino.prototype.compareWeight = function(other) {
+	//the getReadableDecimal function returns a rounded form of a decimal
+	//this function is defined at the top of the program
+	//the function ensures that the quotient is not zero
 	let weight_diff = getReadableDecimal(this.weight, other.weight);
 
+	//set species comparison - this will change depending on weight_diff
 	let heavierSpecies = this.species;
 	let lighterSpecies = other.species;
 
+	//see if weight_diff is less than one - then the heavierSpecies is actually lighter, so they need to be swapped
 	if (weight_diff < 1) {
+		//get the reciprocal of weight diff
 		weight_diff = getReadableDecimal(other.weight, this.weight);
+		//swap variables
 		heavierSpecies = other.species;
 		lighterSpecies = this.species;
 	}
 
+	//if the weight diff is exactly 1, the two species have exactly the same weight
 	if (weight_diff == 1) return heavierSpecies + ' and ' + lighterSpecies + ' weigh exactly the same.';
 
+	//return comparison sentence if the weight diff is not 1 (the species do not weigh exactly the same)
 	return heavierSpecies + ' weighs about ' + weight_diff + ' times more than ' + lighterSpecies + "."; 
 };
     
     // Create Dino Compare Method 2
     // NOTE: Weight in JSON file is in lbs, height in inches.
 // compare height - difference rounded to one decimal place
+/*
+ * @description method of dino to return string comparing height of `this` object to another object
+ * @param {Dino} object to compare this's height to
+ */
 Dino.prototype.compareHeight = function(other) {
+	//return rounded decimal - functoin defined at the top of the program and ensures that the quotient is not zero
 	let height_diff = getReadableDecimal(this.height, other.height);
 
+	//set species comparison - this will change later on
 	let tallerSpecies = this.species;
 	let shorterSpecies = other.species;
 
+	//if the height_diff is less than 1, make some changes accordingly, just like with compareWeight  method
 	if (height_diff < 1) {
 		height_diff = getReadableDecimal(other.height, this.height);
 		tallerSpecies = other.species;
 		shorterSpecies = this.species;
 	}
 
+	//if the two species are exactly as tall, return a sentence stating similarity
 	if (height_diff == 1) return tallerSpecies + ' and ' + shorterSpecies + ' are exactly as tall as each other.';
 
+	//otherwise, return sentence stating difference
 	return tallerSpecies + ' is about ' + height_diff + ' times taller than ' + shorterSpecies + "."; 
 };
     
     // Create Dino Compare Method 3
     // NOTE: Weight in JSON file is in lbs, height in inches.
+// compare diet
+/*
+ * @description method of dino to return string comparing the diet of the `this` object and another object
+ * @param {Dino} object to compare this's diet to
+ */
 Dino.prototype.compareDiet = function(other) {
+	//get lowercase form of this's diet
 	const thisDiet = this.diet.toLowerCase();
+	//get lowercase form of other's diet
 	const otherDiet = other.diet.toLowerCase();
+	
+	//if both diets are equal, return sentence stating similarity
 	if (thisDiet == otherDiet) {
 		return 'Both ' + this.species + ' and ' + other.species + ' are ' + thisDiet + "s.";
 	}
 
+	//otherwise, state difference
 	return 'While ' + other.species + ' is a ' + otherDiet + ', ' + this.species + ' is a ' + thisDiet + '.';
-}
+};
 
+/*
+ * @description return string describing random fact about the dino
+ * */
 Dino.prototype.getRandomFact = function() {
 	//this.factProperties stores the properties that the method can use to generate a random fact for the user
 	let factsToChoose = this.factProperties;
@@ -152,7 +211,7 @@ Dino.prototype.getRandomFact = function() {
 
 	//if the attribute did not meet any of the if statements above, return an empty string which indicates an error.
 	return '';
-}
+};
 
 //array of all dino objects - all json data has to be put through the Dino constructor function so that compare methods can be used
 //AJAX is used to retrieve the data
@@ -162,16 +221,22 @@ let dino_objects = [];
 // Create Dino Objects
 //immediately-invoked function expression to get dino data from dino.json (on the github repository) using AJAX
 //global variable is declared at the top of this script
-(function loadFromJSON() {
+/*
+ * @description IIFE getting json data from github and placing it into the dino_objects variable
+ * */
+(function() {
+	let jsonUrl = 'https://raw.githubusercontent.com/udacity/Javascript/master/dino.json';
 	//fetch data from github repo
-	fetch('https://raw.githubusercontent.com/udacity/Javascript/master/dino.json')
+	fetch(jsonUrl)
 		.then(function(response) { return response.json(); })
 		.then(function(data) {
+			//map data to new array of Dino objects - these need to be put through the constructor for the compare and getRandomFact methods to be used
 			dino_objects = data.Dinos.map((data) => new Dino(data.species, data.weight, data.height, data.diet, data.where, data.when, data.fact));
 			return;
 		})
 		.catch(function(error) {
-			console.log(error);
+			//if unable to get data, add element to dino_objects notifying inability to retrieve data
+			dino_objects = [(new Dino(`unable to retrieve data from ${jsonUrl}. Error: ${error}.`, 0, 0, '', '', '', ''))];
 		});
 })();
     // Create Human Object
@@ -188,37 +253,59 @@ document.getElementById('btn').addEventListener('click', (function(ev) {
 	let human = {};
 
 	//revealing module pattern for infographic
-	let infographic = (function Infographic() {
+	let infographic = (function() {
+		//declare private variable objects_ to store all objects that will be rendered
 		objects_ = [];
 
+		//set objects variable
 		function public_loadObjects(objects) {
 			objects_ = objects;
 		}
 
+		//load infographic
 		function public_load(human) {
 			let grid = document.getElementById('grid');
+			//iterate through objects array
 			objects_.forEach(function(data) {
     				// Generate Tiles for each Dino in Array
+				// create new div for the new tile
 				let newDiv = document.createElement('div');
+
+				// get the string value for the random fact
 				let randomFact = data.getRandomFact();
+				
+				//if the species is a pigeon, only display 'All birds are dinosaurs', which is the fact attribute
 				if (data.species == 'Pigeon') randomFact = data.fact;
+				//add this class to make the div a grid item
 				newDiv.className = 'grid-item';
+				
+				//set the font
 				newDiv.style.fontSize = '20px';
+				
+				//add the species title
 				newDiv.innerHTML += `<strong style='font-size: 40px;'> ${data.species} </strong><br />`;
+				
+				//add the image
 				newDiv.innerHTML += `<img src='${data.img}' />`;
+				
+				//if the object is not a human (if it is a human, do not display any info)
 				if (!data.isHuman) {
 					newDiv.innerHTML += `<strong>Weight: </strong> ${data.compareWeight(human)} <br /><br />`;
 					newDiv.innerHTML += `<strong>Height: </strong> ${data.compareHeight(human)} <br /><br />`;
 					newDiv.innerHTML += `<strong>Diet: </strong> ${data.compareDiet(human)} <br /><br />`;
 					newDiv.innerHTML += `<strong>Did you know?</strong> ${randomFact} <br /><br />`;
 				}
-        			// Add tiles to DOM
+        			
+				// Add tiles to DOM
+				// append this new div to the grid
 				grid.appendChild(newDiv);
 			});
     
+			//remove the form element from the page
 			document.body.removeChild(document.getElementById('dino-compare'));
 		}
 
+		//revealing module pattern continued - just reveal methods
 		return {
 			loadObjects: public_loadObjects,
 			load: public_load
