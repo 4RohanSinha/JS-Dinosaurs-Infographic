@@ -1,5 +1,7 @@
 # Object Oriented Javascript 
 
+## Submission: https://4rohansinha.github.io/JS-Dinosaurs-Infographic/
+
 ## Student Instructions
 
 ### Big Picture
